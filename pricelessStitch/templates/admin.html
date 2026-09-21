@@ -1,0 +1,1324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Portal | Priceless Stitch</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        wine: {
+                            50: '#fdf4f5',
+                            100: '#fbe8eb',
+                            600: '#58111A',
+                            700: '#400c13',
+                            800: '#2d080d',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .tab-active {
+            border-bottom: 2px solid #58111A;
+            color: #58111A;
+            font-weight: 700;
+            background-color: #fdf4f5;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col">
+
+    <!-- Top Admin Header -->
+    <header class="bg-wine-600 text-white shadow-lg sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center font-black text-amber-400">PS</div>
+                <h1 class="text-base sm:text-lg font-bold tracking-wider uppercase">Priceless Stitch <span class="text-wine-100 font-normal text-xs sm:text-sm pl-2 border-l border-white/20">Management Portal</span></h1>
+            </div>
+            <a href="/" class="text-xs sm:text-sm bg-white/10 hover:bg-white/20 text-white px-3 py-1.5 rounded-lg font-medium backdrop-blur-sm border border-white/20 transition-all flex items-center space-x-1">
+                <span>View Main Site</span>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+            </a>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full">
+        
+        <!-- Navigation Tabs -->
+        <div class="flex border-b border-slate-200 mb-6 bg-white rounded-xl shadow-sm overflow-hidden p-1">
+            <button id="tabBookingsBtn" onclick="switchTab('bookings')" class="flex-1 sm:flex-initial px-6 py-3 text-sm font-semibold text-slate-500 rounded-lg transition-all focus:outline-none tab-active">
+                Client Orders & Measurements
+            </button>
+            <button id="tabStudentsBtn" onclick="switchTab('students')" class="flex-1 sm:flex-initial px-6 py-3 text-sm font-semibold text-slate-500 rounded-lg transition-all focus:outline-none">
+                Fashion Academy Enrolments
+            </button>
+			<!-- PASTE THIS BUTTON INSIDE YOUR EXISTING TAB BUTTONS CONTAINER -->
+            <button id="tabStaffMachineBtn" onclick="switchTab('staffMachine')" class="flex-1 sm:flex-initial px-6 py-3 text-sm font-semibold text-slate-500 rounded-lg transition-all focus:outline-none">
+                Staff & Equipment
+            </button>
+        </div>
+
+        <!-- TAB 1: CLIENT BOOKINGS & MEASUREMENTS -->
+        <div id="sectionBookings" class="space-y-6">
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200/80 overflow-hidden">
+                <div class="p-5 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
+                    <h2 class="text-lg font-bold text-slate-900">Tailoring Orders</h2>
+                    <span class="text-xs text-slate-500 bg-slate-200/60 px-2.5 py-1 rounded-full font-medium">Real-time DB Sync</span>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-50 text-slate-500 uppercase text-[11px] font-bold tracking-wider border-b border-slate-200">
+                                <th class="p-4">ID</th>
+                                <th class="p-4">Client Name</th>
+                                <th class="p-4">Phone</th>
+                                <th class="p-4">Garment Type</th>
+                                <th class="p-4">Status</th>
+                                <th class="p-4">Date</th>
+                                <th class="p-4 text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bookingsTableBody" class="divide-y divide-slate-100 text-sm">
+                            <tr><td colspan="7" class="p-8 text-center text-slate-400">Loading bookings...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 2: STUDENT ENROLMENTS & TUITION -->
+        <div id="sectionStudents" class="hidden space-y-6">
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200/80 overflow-hidden">
+                <div class="p-5 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
+                    <h2 class="text-lg font-bold text-slate-900">Academy Student Registry</h2>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-50 text-slate-500 uppercase text-[11px] font-bold tracking-wider border-b border-slate-200">
+                                <th class="p-4">Reg No.</th>
+                                <th class="p-4">Student Name</th>
+                                <th class="p-4">Phone</th>
+                                <th class="p-4">Program Track</th>
+                                <th class="p-4">Duration</th>
+                                <th class="p-4">Tuition Fee</th>
+                                <th class="p-4">Amount Paid</th>
+                                <th class="p-4">Payment Status</th>
+                                <th class="p-4 text-right">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="studentsTableBody" class="divide-y divide-slate-100 text-sm">
+                            <tr><td colspan="9" class="p-8 text-center text-slate-400">Loading student records...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </main>
+	
+	
+
+    <!-- MEASUREMENT LOGGING MODAL -->
+    <div id="measurementModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] flex flex-col border border-slate-100 animate-in fade-in duration-200 overflow-hidden">
+            
+            <!-- Fixed Header -->
+            <div class="flex justify-between items-center bg-wine-600 text-white p-5 shrink-0">
+                <h3 class="text-base font-bold tracking-wide" id="modalClientTitle">Client Measurements</h3>
+                <button onclick="closeModal()" class="text-white/70 hover:text-white text-2xl font-light focus:outline-none">&times;</button>
+            </div>
+
+            <!-- Scrollable Form Container -->
+            <form id="measurementForm" class="p-6 overflow-y-auto space-y-4 flex-1">
+                <input type="hidden" id="modalBookingId">
+                
+                <!-- Financial Summary Inputs -->
+                <div class="grid grid-cols-3 gap-3 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-700 uppercase mb-1">Total Price (NGN)</label>
+                        <input type="number" id="mTotalPrice" step="0.01" placeholder="0.00" 
+                               class="w-full p-2 border border-slate-300 rounded-lg text-sm font-semibold focus:ring-2 focus:ring-wine-600 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-700 uppercase mb-1">Deposit (NGN)</label>
+                        <input type="number" id="mDownPayment" step="0.01" placeholder="0.00" 
+                               class="w-full p-2 border border-slate-300 rounded-lg text-sm font-semibold focus:ring-2 focus:ring-wine-600 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-700 uppercase mb-1">Delivery Date</label>
+                        <input type="date" id="mDeliveryDate" 
+                               class="w-full p-2 border border-slate-300 rounded-lg text-sm font-semibold focus:ring-2 focus:ring-wine-600 focus:outline-none">
+                    </div>
+                </div>
+
+                <!-- Measurements Grid -->
+                <div class="grid grid-cols-2 gap-3 pt-2">
+                    <!-- Upper Body & Torso -->
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Length of Shirt / Top</label>
+                        <input type="number" step="0.1" id="mLengthShift" placeholder='e.g. 28"' class="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-wine-600 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Shoulder Width</label>
+                        <input type="number" step="0.1" id="mShoulder" placeholder='e.g. 18"' class="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-wine-600 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Neck</label>
+                        <input type="number" step="0.1" id="mNeck" placeholder='e.g. 15.5"' class="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-wine-600 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Chest / Bust</label>
+                        <input type="number" step="0.1" id="mChest" placeholder='e.g. 38"' class="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-wine-600 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Sleeves Length</label>
+                        <input type="number" step="0.1" id="mSleeves" placeholder='e.g. 24"' class="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-wine-600 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Tommy / Stomach</label>
+                        <input type="number" step="0.1" id="mTommy" placeholder='e.g. 34"' class="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-wine-600 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Under Bust (Round)</label>
+                        <input type="number" step="0.1" id="mUnderBustRound" placeholder='e.g. 30"' class="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-wine-600 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Shoulder to Under Bust</label>
+                        <input type="number" step="0.1" id="mShoulderToUnderBust" placeholder='e.g. 14"' class="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-wine-600 focus:outline-none">
+                    </div>
+
+                    <!-- Lower Body -->
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Skirt / Trousers Length</label>
+                        <input type="number" step="0.1" id="mTrouserLength" placeholder='e.g. 40"' class="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-wine-600 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Waist</label>
+                        <input type="number" step="0.1" id="mWaist" placeholder='e.g. 32"' class="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-wine-600 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Hips</label>
+                        <input type="number" step="0.1" id="mHips" placeholder='e.g. 42"' class="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-wine-600 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Thigh / Lap</label>
+                        <input type="number" step="0.1" id="mThigh" placeholder='e.g. 24"' class="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-wine-600 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Knee</label>
+                        <input type="number" step="0.1" id="mKnee" placeholder='e.g. 16"' class="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-wine-600 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Ankle</label>
+                        <input type="number" step="0.1" id="mAnkle" placeholder='e.g. 12"' class="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-wine-600 focus:outline-none">
+                    </div>
+                </div>              
+
+                <!-- Action Buttons Footer -->
+                <div class="flex justify-end space-x-3 pt-4 mt-4 border-t border-slate-100 shrink-0">
+                    <button type="button" onclick="closeModal()" class="px-4 py-2 border border-slate-200 rounded-lg text-slate-600 text-sm font-semibold hover:bg-slate-50 transition">Cancel</button>
+                    <button type="submit" class="px-5 py-2 bg-wine-600 text-white rounded-lg text-sm font-semibold hover:bg-wine-700 shadow-sm transition">Save Measurements</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Record Payment Modal -->
+    <div id="paymentModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-md border border-slate-100">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-3 mb-4">
+                <h3 class="text-base font-bold text-slate-900">Record Tuition Payment</h3>
+                <button onclick="closePaymentModal()" class="text-slate-400 hover:text-slate-600 text-2xl font-light focus:outline-none">&times;</button>
+            </div>
+            
+            <form id="paymentForm" onsubmit="submitPayment(event)">
+                <input type="hidden" id="pay_reg_number" name="reg_number">
+                
+                <div class="mb-3">
+                    <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Student Name</label>
+                    <input type="text" id="pay_student_name" readonly class="w-full bg-slate-100 border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-700 font-semibold focus:outline-none">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3 mb-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Tuition Fee (₦)</label>
+                        <input type="number" id="admTuitionFee" step="0.01" placeholder="0.00" 
+                            class="w-full p-2 border border-slate-300 rounded-lg text-sm font-semibold focus:ring-2 focus:ring-wine-600 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Amount Paid (₦)</label>
+                        <input type="number" id="admAmountPaid" step="0.01" placeholder="0.00" 
+                            class="w-full p-2 border border-slate-300 rounded-lg text-sm font-semibold focus:ring-2 focus:ring-wine-600 focus:outline-none">
+                    </div>
+                </div>
+
+                <!-- Updated for Mobile Touch -->
+                <div class="mb-4">
+                    <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">New Payment Amount (₦)</label>
+                    <input type="number" step="0.01" min="0" id="pay_amount" required class="w-full h-12 border border-slate-200 rounded-lg px-4 text-base focus:ring-2 focus:ring-wine-600 focus:outline-none">
+                </div>
+
+                <div class="flex justify-end space-x-3 pt-3 border-t border-slate-100">
+                    <button type="button" onclick="closePaymentModal()" class="px-4 py-2 border border-slate-200 rounded-lg text-sm text-slate-600 hover:bg-slate-50 font-medium transition">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-wine-600 text-white rounded-lg text-sm font-semibold hover:bg-wine-700 shadow-sm transition">Save Payment</button>
+                </div>
+            </form>
+        </div>
+    </div>
+	
+	
+<!-- PASTE BELOW YOUR EXISTING TAB CONTENT DIVs -->
+    <!-- TAB CONTENT: STAFF & MACHINERY -->
+    <div id="staffMachineTab" class="tab-content hidden space-y-8">
+        
+        <!-- Staff Registry Section -->
+        <div class="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-gray-100">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
+                <div>
+                    <h2 class="text-xl font-bold text-gray-800">Staff Registry</h2>
+                    <p class="text-xs text-gray-500">Manage shop tailors, roles, and payout rates</p>
+                </div>
+                <button onclick="openStaffModal()" class="w-full sm:w-auto h-11 px-5 bg-rose-900 text-white rounded-lg font-semibold hover:bg-rose-800 shadow-sm transition-colors text-sm flex items-center justify-center">
+                    + Add Staff
+                </button>
+            </div>
+            <div class="overflow-x-auto w-full rounded-lg shadow-sm border border-gray-200 mt-4">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="border-b bg-gray-50 text-gray-600 text-xs uppercase tracking-wider">
+                            <th class="p-3.5 whitespace-nowrap">NAME</th>
+                            <th class="p-3.5 whitespace-nowrap">PHONE</th>
+                            <th class="p-3.5 whitespace-nowrap">ROLE</th>
+                            <th class="p-3.5 whitespace-nowrap">PAY TYPE</th>
+                            <th class="p-3.5 whitespace-nowrap">RATE / SALARY (₦)</th>
+                            <th class="p-3.5 whitespace-nowrap">STATUS</th>
+                            <th class="p-3.5 text-right whitespace-nowrap">ACTIONS</th>
+                        </tr>
+                    </thead>
+                    <tbody id="staffTableBody" class="divide-y divide-gray-100 text-sm">
+                        <!-- Staff rows dynamically loaded here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Machinery Inventory Section -->
+        <div class="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-gray-100">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
+                <div>
+                    <h2 class="text-xl font-bold text-gray-800">Machine Inventory</h2>
+                    <p class="text-xs text-gray-500">Track shop equipment and operator assignments</p>
+                </div>
+                <button onclick="openMachineModal()" class="w-full sm:w-auto h-11 px-5 bg-rose-900 text-white rounded-lg font-semibold hover:bg-rose-800 shadow-sm transition-colors text-sm flex items-center justify-center">
+                    + Add Machine
+                </button>
+            </div>
+            <div class="overflow-x-auto w-full rounded-lg shadow-sm border border-gray-200 mt-4">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="border-b bg-gray-50 text-gray-600 text-xs uppercase tracking-wider">
+                            <th class="p-3.5 whitespace-nowrap">MACHINE NAME</th>
+                            <th class="p-3.5 whitespace-nowrap">SERIAL NO.</th>
+                            <th class="p-3.5 whitespace-nowrap">STATUS</th>
+                            <th class="p-3.5 whitespace-nowrap">ASSIGNED TO</th>
+                            <th class="p-3.5 text-right whitespace-nowrap">ACTIONS</th>
+                        </tr>
+                    </thead>
+                    <tbody id="machineTableBody" class="divide-y divide-gray-100 text-sm">
+                        <!-- Machine rows dynamically loaded here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+	<!-- ADD STAFF MODAL -->
+    <div id="staffModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-xl p-6 w-full max-w-md shadow-xl max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-bold text-rose-900">Add New Staff Member</h3>
+                <button type="button" onclick="closeStaffModal()" class="text-gray-500 hover:text-gray-700 text-2xl font-bold">&times;</button>
+            </div>
+            <form id="staffForm" onsubmit="submitStaff(event)" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Full Name *</label>
+                    <input type="text" id="staff_name" required class="w-full h-12 px-4 border rounded-xl text-base outline-none focus:ring-2 focus:ring-rose-900">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Phone Number *</label>
+                    <input type="tel" id="staff_phone" required class="w-full h-12 px-4 border rounded-xl text-base outline-none focus:ring-2 focus:ring-rose-900">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Role *</label>
+                    <select id="staff_role" required class="w-full h-12 px-4 border rounded-xl text-base outline-none focus:ring-2 focus:ring-rose-900 bg-white">
+                        <option value="Master Tailor">Master Tailor</option>
+                        <option value="Cutter">Cutter</option>
+                        <option value="Finisher">Finisher</option>
+                        <option value="Instructor">Instructor</option>
+                        <option value="Apprentice">Apprentice</option>
+                    </select>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Pay Type *</label>
+                        <select id="staff_pay_type" required class="w-full h-12 px-4 border rounded-xl text-base outline-none focus:ring-2 focus:ring-rose-900 bg-white">
+                            <option value="Piece Rate">Piece Rate</option>
+                            <option value="Monthly Salary">Monthly Salary</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Rate/Salary (₦)</label>
+                        <input type="number" id="staff_rate" min="0" placeholder="e.g. 45000" class="w-full h-12 px-4 border rounded-xl text-base outline-none focus:ring-2 focus:ring-rose-900">
+                    </div>
+                </div>
+                <div class="flex justify-end space-x-3 pt-4 border-t">
+                    <button type="button" onclick="closeStaffModal()" class="h-11 px-4 border rounded-xl text-gray-600 hover:bg-gray-100 font-medium">Cancel</button>
+                    <button type="submit" class="h-11 px-5 bg-rose-900 text-white rounded-xl font-semibold hover:bg-rose-800 transition-colors">Save Staff</button>
+                </div>
+            </form>
+        </div>
+    </div>
+	<!-- EDIT STAFF MODAL -->
+    <div id="editStaffModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-xl p-6 w-full max-w-md shadow-xl max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-bold text-rose-900">Edit Staff Member</h3>
+                <button type="button" onclick="closeEditStaffModal()" class="text-gray-500 hover:text-gray-700 text-2xl font-bold">&times;</button>
+            </div>
+            <form id="editStaffForm" onsubmit="submitEditStaff(event)" class="space-y-4">
+                <!-- Hidden input for ID -->
+                <input type="hidden" id="editStaffId">
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Full Name *</label>
+                    <input type="text" id="editStaffName" required class="w-full h-12 px-4 border rounded-xl text-base outline-none focus:ring-2 focus:ring-rose-900">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Phone Number *</label>
+                    <input type="tel" id="editStaffPhone" required class="w-full h-12 px-4 border rounded-xl text-base outline-none focus:ring-2 focus:ring-rose-900">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Role *</label>
+                    <select id="editStaffRole" required class="w-full h-12 px-4 border rounded-xl text-base outline-none focus:ring-2 focus:ring-rose-900 bg-white">
+                        <option value="Master Tailor">Master Tailor</option>
+                        <option value="Cutter">Cutter</option>
+                        <option value="Finisher">Finisher</option>
+                        <option value="Instructor">Instructor</option>
+                        <option value="Apprentice">Apprentice</option>
+                    </select>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Pay Type *</label>
+                        <select id="editStaffPayType" required class="w-full h-12 px-4 border rounded-xl text-base outline-none focus:ring-2 focus:ring-rose-900 bg-white">
+                            <option value="Piece Rate">Piece Rate</option>
+                            <option value="Monthly Salary">Monthly Salary</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Rate/Salary (₦)</label>
+                        <input type="number" id="editStaffRate" min="0" placeholder="e.g. 45000" class="w-full h-12 px-4 border rounded-xl text-base outline-none focus:ring-2 focus:ring-rose-900">
+                    </div>
+                </div>
+                <div class="flex justify-end space-x-3 pt-4 border-t">
+                    <button type="button" onclick="closeEditStaffModal()" class="h-11 px-4 border rounded-xl text-gray-600 hover:bg-gray-100 font-medium">Cancel</button>
+                    <button type="submit" class="h-11 px-5 bg-rose-900 text-white rounded-xl font-semibold hover:bg-rose-800 transition-colors">Update Staff</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ADD MACHINE MODAL -->
+    <div id="machineModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-xl p-6 w-full max-w-md shadow-xl max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-bold text-rose-900">Add New Machine</h3>
+                <button type="button" onclick="closeMachineModal()" class="text-gray-500 hover:text-gray-700 text-2xl font-bold">&times;</button>
+            </div>
+            <form id="machineForm" onsubmit="submitMachine(event)" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Machine Name / Type *</label>
+                    <input type="text" id="machine_name" placeholder="e.g. Straight Stitch #1" required class="w-full h-12 px-4 border rounded-xl text-base outline-none focus:ring-2 focus:ring-rose-900">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Serial Number</label>
+                    <input type="text" id="machine_serial" placeholder="Optional" class="w-full h-12 px-4 border rounded-xl text-base outline-none focus:ring-2 focus:ring-rose-900">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Status</label>
+                    <select id="machine_status" class="w-full h-12 px-4 border rounded-xl text-base outline-none focus:ring-2 focus:ring-rose-900 bg-white">
+                        <option value="Working">Working</option>
+                        <option value="Needs Service">Needs Service</option>
+                        <option value="Out of Order">Out of Order</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Assign to Staff (Optional)</label>
+                    <select id="machine_assigned_staff" class="w-full h-12 px-4 border rounded-xl text-base outline-none focus:ring-2 focus:ring-rose-900 bg-white">
+                        <option value="">Unassigned</option>
+                    </select>
+                </div>
+                <div class="flex justify-end space-x-3 pt-4 border-t">
+                    <button type="button" onclick="closeMachineModal()" class="h-11 px-4 border rounded-xl text-gray-600 hover:bg-gray-100 font-medium">Cancel</button>
+                    <button type="submit" class="h-11 px-5 bg-rose-900 text-white rounded-xl font-semibold hover:bg-rose-800 transition-colors">Save Machine</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- STYLE CATALOG SECTION -->
+    <div class="bg-white rounded-xl shadow-md p-4 sm:p-6 mt-8">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6">
+            <div>
+                <h2 class="text-xl font-bold text-gray-800">Style Catalog</h2>
+                <p class="text-sm text-gray-500">Manage apparel styles available for customer selection</p>
+            </div>
+            <button onclick="openStyleModal()" class="w-full sm:w-auto h-11 px-5 bg-rose-900 text-white rounded-xl font-semibold hover:bg-rose-800 transition-colors flex items-center justify-center">
+                + Add Style
+            </button>
+        </div>
+
+        <!-- Dynamic Card Grid -->
+        <div id="styleCatalog" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- JavaScript will render style cards here -->
+        </div>
+    </div>
+
+    <!-- ADD STYLE MODAL -->
+    <div id="styleModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-xl p-6 w-full max-w-md shadow-xl max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-bold text-rose-900">Add New Style</h3>
+                <button type="button" onclick="closeStyleModal()" class="text-gray-500 hover:text-gray-700 text-2xl font-bold">&times;</button>
+            </div>
+            <form id="styleForm" onsubmit="submitStyle(event)" class="space-y-4" enctype="multipart/form-data">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Style Name *</label>
+                    <input type="text" id="style_title" required class="w-full h-12 px-4 border rounded-xl text-base outline-none focus:ring-2 focus:ring-rose-900">
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Category *</label>
+                        <select id="style_category" required class="w-full h-12 px-4 border rounded-xl text-base outline-none focus:ring-2 focus:ring-rose-900 bg-white">
+                            <option value="Men Wear">Men Wear</option>
+                            <option value="Women Wear">Women Wear</option>
+                            <option value="Agbeda">Agbeda</option>
+                            <option value="Kaftan">Kaftan</option>
+                            <option value="Gown">Gown</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Starting Price (₦) *</label>
+                        <input type="number" id="style_price" required min="0" placeholder="e.g. 25000" class="w-full h-12 px-4 border rounded-xl text-base outline-none focus:ring-2 focus:ring-rose-900">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Style Image File *</label>
+                    <input type="file" id="style_image" accept="image/*" required class="w-full border rounded-xl p-2 outline-none focus:ring-2 focus:ring-rose-900 text-sm">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Description</label>
+                    <textarea id="style_desc" rows="2" class="w-full p-3 border rounded-xl text-base outline-none focus:ring-2 focus:ring-rose-900"></textarea>
+                </div>
+                <div class="flex justify-end space-x-3 pt-4 border-t">
+                    <button type="button" onclick="closeStyleModal()" class="h-11 px-4 border rounded-xl text-gray-600 hover:bg-gray-100 font-medium">Cancel</button>
+                    <button type="submit" class="h-11 px-5 bg-rose-900 text-white rounded-xl font-semibold hover:bg-rose-800 transition-colors">Upload & Save</button>
+                </div>
+            </form>
+        </div>
+    </div>	
+<!-- Script to Handle Modals, Fetching, Dynamic Rendering & Submissions -->
+    <script>
+        // Tab Switcher
+		function switchTab(tab) {
+            const bBtn = document.getElementById('tabBookingsBtn');
+            const sBtn = document.getElementById('tabStudentsBtn');
+            const smBtn = document.getElementById('tabStaffMachineBtn');
+
+            const bSec = document.getElementById('sectionBookings');
+            const sSec = document.getElementById('sectionStudents');
+            const smSec = document.getElementById('staffMachineTab');
+
+            // Reset all tabs to inactive state
+            [bBtn, sBtn, smBtn].forEach(btn => btn?.classList.remove('tab-active'));
+            [bSec, sSec, smSec].forEach(sec => sec?.classList.add('hidden'));
+
+            if (tab === 'bookings') {
+                bBtn.classList.add('tab-active');
+                bSec.classList.remove('hidden');
+                loadBookings();
+            } else if (tab === 'students') {
+                sBtn.classList.add('tab-active');
+                sSec.classList.remove('hidden');
+                loadStudents();
+            } else if (tab === 'staffMachine') {
+                smBtn.classList.add('tab-active');
+                smSec.classList.remove('hidden');
+                loadStaff();
+                loadMachines();
+            }
+        }
+
+
+        // Helper: Generate WhatsApp URL with fallback messaging
+        function getWhatsAppUrl(phone, message) {
+            if (!phone) return '#';
+            let cleanPhone = phone.replace(/\D/g, '');
+            if (cleanPhone.startsWith('0')) {
+                cleanPhone = '234' + cleanPhone.substring(1);
+            }
+            const encodedMsg = encodeURIComponent(message || 'Hello from Priceless Stitch!');
+            return `https://wa.me/${cleanPhone}?text=${encodedMsg}`;
+        }
+		
+		function openStyleModal() {
+            document.getElementById('styleModal').classList.remove('hidden');
+        }
+
+        function closeStyleModal() {
+            document.getElementById('styleModal').classList.add('hidden');
+            document.getElementById('styleForm').reset();
+        }
+
+        // Trigger fetch on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof loadCustomerStyles === 'function') {
+                loadCustomerStyles();
+            }
+        });
+
+// Fetch & Render Client Orders
+        async function loadBookings() {
+            const tbody = document.getElementById('bookingsTableBody');
+            tbody.innerHTML = `<tr><td colspan="7" class="p-8 text-center text-slate-400">Loading bookings...</td></tr>`;
+
+            try {
+                const res = await fetch('/api/bookings');
+                const data = await res.json();
+                tbody.innerHTML = '';
+
+                if (!data || data.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="7" class="p-8 text-center text-slate-400">No client orders found.</td></tr>`;
+                    return;
+                }
+
+                data.forEach(item => {
+                    const waMessage = `Hello ${item.full_name}, this is Priceless Stitch regarding your order #${item.id} (${item.garment_type}).`;
+                    const waUrl = getWhatsAppUrl(item.phone, waMessage);
+
+                    tbody.innerHTML += `
+                        <tr class="hover:bg-slate-50/80 transition-colors">
+                            <td class="p-4 font-bold text-slate-900">#${item.id}</td>
+                            <td class="p-4 font-semibold text-slate-800">${item.full_name}</td>
+                            <td class="p-4 text-slate-600">${item.phone || 'N/A'}</td>
+                            <td class="p-4 text-slate-600">${item.garment_type}</td>
+                            
+                            <!-- UPDATED STATUS DROPDOWN -->
+                            <td class="p-4">
+                                <select onchange="updateOrderStatus(${item.id}, this.value)" 
+                                        class="p-1.5 border border-slate-200 rounded-lg text-xs font-semibold bg-white text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-wine-600 cursor-pointer">
+                                    <option value="Pending" ${item.status === 'Pending' ? 'selected' : ''}>Pending</option>
+                                    <option value="In Progress" ${item.status === 'In Progress' ? 'selected' : ''}>In Progress</option>
+                                    <option value="Completed" ${item.status === 'Completed' ? 'selected' : ''}>Completed</option>
+                                    <option value="Delivered" ${item.status === 'Delivered' ? 'selected' : ''}>Delivered</option>
+                                </select>
+                            </td>
+
+                            <td class="p-4 text-slate-500 text-xs">${item.created_at || 'Recently'}</td>
+                            <td class="p-4">
+                                <div class="flex items-center justify-end space-x-2">
+                                    <button onclick="openMeasurementModal(${item.id}, '${item.full_name.replace(/'/g, "\\'")}')" 
+                                            class="bg-wine-600 text-white text-xs px-3 py-1.5 rounded-lg font-semibold hover:bg-wine-700 shadow-sm transition">
+                                        Log Measurements
+                                    </button>
+                                    <a href="/api/pdf/invoice/${item.id}" target="_blank" 
+                                       class="bg-slate-800 text-white text-xs px-2.5 py-1.5 rounded-lg font-semibold hover:bg-slate-900 transition">
+                                        PDF Invoice
+                                    </a>
+                                    <a href="${waUrl}" target="_blank" 
+                                       class="bg-emerald-600 text-white text-xs px-2.5 py-1.5 rounded-lg font-semibold hover:bg-emerald-700 transition flex items-center gap-1 shadow-sm">
+                                        <span>💬</span> WhatsApp
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                });
+            } catch (err) {
+                console.error("Error loading bookings:", err);
+                tbody.innerHTML = `<tr><td colspan="7" class="p-8 text-center text-rose-500 font-medium">Failed to load client orders. Please check server connection.</td></tr>`;
+            }
+        }
+
+        async function updateOrderStatus(bookingId, newStatus) {
+            try {
+                const response = await fetch('/api/bookings/update_status', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ booking_id: bookingId, status: newStatus })
+                });
+                
+                if (!response.ok) {
+                    alert("Failed to update status");
+                }
+            } catch (error) {
+                console.error("Error updating status:", error);
+            }
+        }        
+        // Open & Fetch Measurements Modal
+        async function openMeasurementModal(bookingId, clientName) {
+            document.getElementById('modalBookingId').value = bookingId;
+            document.getElementById('modalClientTitle').innerText = `Measurements: ${clientName} (#${bookingId})`;
+			
+			// Reset form
+            document.getElementById('measurementForm').reset();
+            document.getElementById('modalBookingId').value = bookingId;
+			
+
+            try {
+			    // 1. Fetch existing booking data (to populate total_price and down_payment)
+                const bookingRes = await fetch(`/api/bookings/${bookingId}`);
+                if (bookingRes.ok) {
+                    const booking = await bookingRes.json();
+                    document.getElementById('mTotalPrice').value = booking.total_price || 0;
+                    document.getElementById('mDownPayment').value = booking.down_payment || 0;
+					document.getElementById('mDeliveryDate').value = booking.delivery_date || '';
+                }
+				
+				// 2. Fetch existing measurement data
+                const res = await fetch(`/api/measurements/${bookingId}`);
+                if (res.ok) {
+                    const data = await res.json();
+                    document.getElementById('mLengthShift').value = data.length_shift || '';
+                    document.getElementById('mShoulder').value = data.shoulder || '';
+                    document.getElementById('mNeck').value = data.neck || '';
+                    document.getElementById('mChest').value = data.chest || '';
+                    document.getElementById('mSleeves').value = data.sleeves || '';
+                    document.getElementById('mTommy').value = data.tommy || '';
+                    document.getElementById('mUnderBustRound').value = data.under_bust_round || '';
+                    document.getElementById('mShoulderToUnderBust').value = data.shoulder_to_under_bust || '';
+                    document.getElementById('mTrouserLength').value = data.trouser_length || '';
+                    document.getElementById('mWaist').value = data.waist || '';
+                    document.getElementById('mHips').value = data.hips || '';
+                    document.getElementById('mThigh').value = data.thigh || '';
+                    document.getElementById('mKnee').value = data.knee || '';
+                    document.getElementById('mAnkle').value = data.ankle || '';
+        
+                }
+            } catch (err) {
+                console.error("Error fetching measurements:", err);
+            }
+
+            document.getElementById('measurementModal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('measurementModal').classList.add('hidden');
+            document.getElementById('measurementForm').reset();
+        }
+
+        // Save Measurement Handler
+        document.getElementById('measurementForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerText;
+            submitBtn.innerText = 'Saving...';
+            submitBtn.disabled = true;
+
+            const payload = {
+                booking_id: parseInt(document.getElementById('modalBookingId').value),
+				total_price: parseFloat(document.getElementById('mTotalPrice').value) || 0.0,
+                down_payment: parseFloat(document.getElementById('mDownPayment').value) || 0.0,
+				delivery_date: document.getElementById('mDeliveryDate').value || 'N/A',
+                length_shift: parseFloat(document.getElementById('mLengthShift').value) || 0,
+                shoulder: parseFloat(document.getElementById('mShoulder').value) || 0,
+                neck: parseFloat(document.getElementById('mNeck').value) || 0,
+                chest: parseFloat(document.getElementById('mChest').value) || 0,
+                sleeves: parseFloat(document.getElementById('mSleeves').value) || 0,
+                tommy: parseFloat(document.getElementById('mTommy').value) || 0,
+                under_bust_round: parseFloat(document.getElementById('mUnderBustRound').value) || 0,
+                shoulder_to_under_bust: parseFloat(document.getElementById('mShoulderToUnderBust').value) || 0,
+                trouser_length: parseFloat(document.getElementById('mTrouserLength').value) || 0,
+                waist: parseFloat(document.getElementById('mWaist').value) || 0,
+                hips: parseFloat(document.getElementById('mHips').value) || 0,
+                thigh: parseFloat(document.getElementById('mThigh').value) || 0,
+                knee: parseFloat(document.getElementById('mKnee').value) || 0,
+                ankle: parseFloat(document.getElementById('mAnkle').value) || 0
+            };
+
+            try {
+                const res = await fetch('/api/measurements/save', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (res.ok) {
+                    closeModal();
+                    await loadBookings();
+                } else {
+                    alert('Failed to save measurements. Please check entry parameters.');
+                }
+            } catch (err) {
+                alert('Error connecting to backend API.');
+            } finally {
+                submitBtn.innerText = originalText;
+                submitBtn.disabled = false;
+            }
+        });
+		
+		async function loadCustomerStyles() {
+            try {
+                const res = await fetch('/api/styles');
+                const styles = await res.json();
+                const container = document.getElementById('styleCatalog');
+
+                if (!container) return;
+
+                if (!styles || styles.length === 0) {
+                    container.innerHTML = `
+                        <div class="col-span-1 md:col-span-3 text-center py-8 text-gray-500">
+                            No styles uploaded to the catalog yet.
+                        </div>`;
+                    return;
+                }
+
+                container.innerHTML = styles.map(s => `
+                    <div class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow border border-gray-100 flex flex-col justify-between">
+                        <div>
+                            <div class="w-full h-80 bg-gray-100 flex items-center justify-center p-2 border-b relative">
+                                <img src="${s.image_url}" alt="${s.title}" class="w-full h-full object-contain rounded-lg">
+                                <!-- Delete Button Badge -->
+                                <button onclick="deleteStyle(${s.id}, '${s.title}')" class="absolute top-3 right-3 bg-red-600 text-white p-2 rounded-full hover:bg-red-700 shadow transition-colors text-xs font-bold" title="Delete Style">
+                                    ✕
+                                </button>
+                            </div>
+                            
+                            <div class="p-5">
+                                <span class="text-xs font-bold text-rose-800 bg-rose-100 px-2.5 py-1 rounded-full uppercase">
+                                    ${s.category}
+                                </span>
+                                <h3 class="text-xl font-bold text-gray-800 mt-2">${s.title}</h3>
+                                <p class="text-gray-500 text-sm mt-1">${s.description || 'Custom tailored to your exact measurements.'}</p>
+                            </div>
+                        </div>
+                        <div class="p-5 pt-0">
+                            <div class="flex justify-between items-center pt-3 border-t">
+                                <span class="text-lg font-bold text-gray-900">₦${(s.price || 0).toLocaleString()}</span>
+                                <button onclick="deleteStyle(${s.id}, '${s.title}')" class="px-3 py-1.5 text-red-600 border border-red-200 rounded-lg text-xs font-bold hover:bg-red-50 transition-colors">
+                                    Delete Style
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+
+            } catch (err) {
+                console.error("Error loading style catalog:", err);
+            }
+        }
+
+        async function submitStyle(e) {
+            e.preventDefault();
+
+            const fileInput = document.getElementById('style_image');
+            if (!fileInput || !fileInput.files[0]) {
+                alert("Please select an image file.");
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('title', document.getElementById('style_title').value);
+            formData.append('category', document.getElementById('style_category').value);
+            formData.append('price', document.getElementById('style_price').value);
+            formData.append('description', document.getElementById('style_desc').value);
+            formData.append('image', fileInput.files[0]);
+
+            try {
+                // DO NOT pass headers when sending FormData
+                const res = await fetch('/api/styles', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (res.ok) {
+                    closeStyleModal();
+                    if (typeof loadCustomerStyles === 'function') {
+                        loadCustomerStyles();
+                    }
+                    alert("Style uploaded successfully!");
+                } else {
+                    const data = await res.json();
+                    alert(data.error || "Failed to upload style.");
+                }
+            } catch (err) {
+                console.error("Error uploading style:", err);
+                alert("Server error uploading file.");
+            }
+        }
+		
+        function selectStyleForOrder(styleTitle, price) {
+            // Scroll to order form and pre-fill style selection
+            const styleInput = document.getElementById('selected_style');
+            if (styleInput) {
+                styleInput.value = styleTitle;
+            }
+            alert(`Selected "${styleTitle}"! Proceeding to order form.`);
+            document.getElementById('orderFormSection')?.scrollIntoView({ behavior: 'smooth' });
+        }
+		
+		async function deleteStyle(styleId, styleTitle) {
+            if (!confirm(`Are you sure you want to delete "${styleTitle}"? This will permanently remove it from the catalog.`)) {
+                return;
+            }
+
+            try {
+                const res = await fetch(`/api/styles/${styleId}`, {
+                    method: 'DELETE'
+                });
+
+                if (res.ok) {
+                    loadCustomerStyles();
+                } else {
+                    const data = await res.json();
+                    alert(data.error || "Failed to delete style.");
+                }
+            } catch (err) {
+                console.error("Error deleting style:", err);
+                alert("Server error while deleting style.");
+            }
+        }
+		
+
+        // Fetch & Render Academy Students
+        async function loadStudents() {
+            const tbody = document.getElementById('studentsTableBody');
+            tbody.innerHTML = `<tr><td colspan="9" class="p-8 text-center text-slate-400">Loading student records...</td></tr>`;
+
+            try {
+                const res = await fetch('/api/students');
+                const data = await res.json();
+                tbody.innerHTML = '';
+
+                if (!data || data.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="9" class="p-8 text-center text-slate-400">No registered students found.</td></tr>`;
+                    return;
+                }
+
+                data.forEach(item => {
+                    const payBadge = item.payment_status === 'Completed' 
+                        ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' 
+                        : item.payment_status === 'Partial' 
+                        ? 'bg-sky-50 text-sky-700 border border-sky-200' 
+                        : 'bg-rose-50 text-rose-700 border border-rose-200';
+
+                    const tuitionFormatted = (item.tuition_fee || 0).toLocaleString();
+                    const paidFormatted = (item.amount_paid || 0).toLocaleString();
+
+                    const waMessage = `Hello ${item.full_name}, reaching out from Priceless Stitch Fashion Academy regarding your enrolment status (${item.reg_number}).`;
+                    const waUrl = getWhatsAppUrl(item.phone, waMessage);
+
+                    tbody.innerHTML += `
+                        <tr class="hover:bg-slate-50/80 transition-colors">
+                            <td class="p-4 font-bold text-wine-600">${item.reg_number}</td>
+                            <td class="p-4 font-semibold text-slate-800">${item.full_name}</td>
+                            <td class="p-4 text-slate-600">${item.phone || 'N/A'}</td>
+                            <td class="p-4 text-slate-600">${item.program}</td>
+                            <td class="p-4 text-slate-600">${item.duration}</td>
+                            <td class="p-4 text-slate-800 font-medium">₦${tuitionFormatted}</td>
+                            <td class="p-4 text-slate-900 font-semibold">₦${paidFormatted}</td>
+                            <td class="p-4">
+                                <span class="${payBadge} text-xs px-2.5 py-1 rounded-full font-bold inline-block">
+                                    ${item.payment_status}
+                                </span>
+                            </td>
+                            <td class="p-4">
+                                <div class="flex items-center justify-end space-x-2">
+                                    <button onclick="openPaymentModal('${item.reg_number}', '${item.full_name.replace(/'/g, "\\'")}', ${item.tuition_fee || 0}, ${item.amount_paid || 0})" 
+                                            class="bg-emerald-600 text-white text-xs px-2.5 py-1.5 rounded-lg font-semibold hover:bg-emerald-700 shadow-sm transition">
+                                        + Payment
+                                    </button>
+                                    <a href="/api/pdf/admission/${item.reg_number}" target="_blank" 
+                                       class="bg-wine-600 text-white text-xs px-2.5 py-1.5 rounded-lg font-semibold hover:bg-wine-700 transition">
+                                        Admission
+                                    </a>
+                                    <a href="${waUrl}" target="_blank" 
+                                       class="bg-emerald-600 text-white text-xs px-2.5 py-1.5 rounded-lg font-semibold hover:bg-emerald-700 transition flex items-center gap-1 shadow-sm">
+                                        <span>💬</span> WhatsApp
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                });
+            } catch (err) {
+                console.error("Error loading students:", err);
+                tbody.innerHTML = `<tr><td colspan="9" class="p-8 text-center text-rose-500 font-medium">Failed to load student registry. Please check server connection.</td></tr>`;
+            }
+        }
+
+        // Open Payment Modal
+        function openPaymentModal(regNumber, fullName, tuitionFee, amountPaid) {
+            document.getElementById('pay_reg_number').value = regNumber;
+            document.getElementById('pay_student_name').value = fullName;
+            // Pass raw numbers (without ₦) so <input type="number"> can display them correctly
+            document.getElementById('admTuitionFee').value = (tuitionFee && tuitionFee > 0) ? tuitionFee : '';
+            document.getElementById('admAmountPaid').value = amountPaid || 0;
+    
+            document.getElementById('pay_amount').value = '';
+    
+            document.getElementById('paymentModal').classList.remove('hidden');
+        }
+
+        function closePaymentModal() {
+            document.getElementById('paymentModal').classList.add('hidden');
+        }
+
+        // Submit Tuition Payment
+        async function submitPayment(event) {
+            event.preventDefault();
+            const regNumber = document.getElementById('pay_reg_number').value;
+            
+            const rawTuition = document.getElementById('admTuitionFee').value;
+            const rawAmount = document.getElementById('pay_amount').value;
+
+            // Convert values safely; default to null or 0 if empty
+            const tuitionFee = rawTuition !== "" && !isNaN(rawTuition) ? parseFloat(rawTuition) : null;
+            const amount = rawAmount !== "" && !isNaN(rawAmount) ? parseFloat(rawAmount) : 0;
+
+            // Ensure at least tuition is being set OR a payment amount is provided
+            if ((tuitionFee === null || tuitionFee <= 0) && amount <= 0) {
+                alert("Please enter a valid tuition fee or payment amount.");
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/students/record_payment', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        reg_number: regNumber, 
+                        tuition_fee: tuitionFee, 
+                        amount: amount 
+                    })
+                });
+				
+				const result = await response.json();
+                if (response.ok) {
+                    closePaymentModal();
+                    loadStudents();
+                } else {
+                    alert(result.error || "Failed to record payment.");
+                }
+            } catch (err) {
+                console.error("Payment submission error:", err);
+                alert("An error occurred while submitting payment.");
+            }
+        }
+
+        // ==========================================
+        // PASTE THE NEW STAFF & MACHINE FUNCTIONS HERE:
+        // ==========================================
+
+        async function loadStaff() {
+            try {
+                const res = await fetch('/api/staff');
+                const staffList = await res.json();
+                
+                const tbody = document.getElementById('staffTableBody');
+                if (!staffList || staffList.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-gray-500">No staff members registered yet.</td></tr>`;
+                    return;
+                }
+
+                tbody.innerHTML = staffList.map(s => {
+                    const isSuspended = s.status === 'Suspended';
+                    const statusBadgeClass = isSuspended ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800';
+                    const toggleActionText = isSuspended ? 'Activate' : 'Suspend';
+                    const toggleActionClass = isSuspended ? 'text-green-600 hover:text-green-800' : 'text-yellow-600 hover:text-yellow-800';
+
+                    return `
+                        <tr class="border-b hover:bg-gray-50 text-sm">
+                            <td class="p-3 font-semibold text-gray-800">${s.full_name}</td>
+                            <td class="p-3 text-gray-600">${s.phone}</td>
+                            <td class="p-3"><span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs font-semibold">${s.role}</span></td>
+                            <td class="p-3 text-gray-600">${s.pay_type}</td>
+                            <td class="p-3 font-medium">₦${(s.salary_rate || 0).toLocaleString()}</td>
+                            <td class="p-3">
+                                <span class="text-xs px-2 py-1 rounded font-semibold ${statusBadgeClass}">${s.status || 'Active'}</span>
+                            </td>
+                            <td class="p-3 text-right space-x-2">
+                                <button onclick='openEditStaffModal(${JSON.stringify(s)})' class="text-blue-600 hover:text-blue-800 text-xs font-bold">Edit</button>
+                                <button onclick="toggleStaffStatus(${s.id}, '${s.status}')" class="${toggleActionClass} text-xs font-bold">${toggleActionText}</button>
+                                <button onclick="deleteStaff(${s.id}, '${s.full_name}')" class="text-red-600 hover:text-red-800 text-xs font-bold">Delete</button>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+
+            } catch (err) {
+                console.error("Error loading staff:", err);
+            }
+        }
+		
+		function openEditStaffModal(staffObj) {
+            document.getElementById('editStaffId').value = staffObj.id;
+            document.getElementById('editStaffName').value = staffObj.full_name;
+            document.getElementById('editStaffPhone').value = staffObj.phone;
+            document.getElementById('editStaffRole').value = staffObj.role;
+            document.getElementById('editStaffPayType').value = staffObj.pay_type;
+            document.getElementById('editStaffRate').value = staffObj.salary_rate;
+            document.getElementById('editStaffModal').classList.remove('hidden');
+        }
+
+        function closeEditStaffModal() {
+            document.getElementById('editStaffModal').classList.add('hidden');
+        }
+		
+		async function submitEditStaff(e) {
+            e.preventDefault();
+            
+            const staffId = document.getElementById('editStaffId').value;
+            const payload = {
+                full_name: document.getElementById('editStaffName').value,
+                phone: document.getElementById('editStaffPhone').value,
+                role: document.getElementById('editStaffRole').value,
+                pay_type: document.getElementById('editStaffPayType').value,
+                salary_rate: parseFloat(document.getElementById('editStaffRate').value) || 0
+            };
+
+            try {
+                const res = await fetch(`/api/staff/${staffId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (res.ok) {
+                    closeEditStaffModal();
+                    loadStaff();
+                } else {
+                    const data = await res.json();
+                    alert(data.error || 'Failed to update staff member.');
+                }
+            } catch (err) {
+                console.error('Error updating staff:', err);
+                alert('Server error updating staff member.');
+            }
+        }
+
+        async function toggleStaffStatus(staffId, currentStatus) {
+            const nextStatus = currentStatus === 'Suspended' ? 'Active' : 'Suspended';
+            if (!confirm(`Are you sure you want to change this staff member's status to ${nextStatus}?`)) return;
+
+            try {
+                const res = await fetch(`/api/staff/${staffId}/status`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: nextStatus })
+                });
+
+                if (res.ok) {
+                    loadStaff();
+                } else {
+                    const data = await res.json();
+                    alert(data.error || "Failed to update staff status.");
+                }
+            } catch (err) {
+                console.error("Error toggling status:", err);
+            }
+        }
+
+        async function deleteStaff(staffId, staffName) {
+            if (!confirm(`Are you sure you want to delete ${staffName}? This action cannot be undone.`)) return;
+
+            try {
+                const res = await fetch(`/api/staff/${staffId}`, { method: 'DELETE' });
+                if (res.ok) {
+                    loadStaff();
+                    loadMachines(); // Refresh machines to reflect unassignment
+                } else {
+                    const data = await res.json();
+                    alert(data.error || "Failed to delete staff.");
+                }
+            } catch (err) {
+                console.error("Error deleting staff:", err);
+            }
+        }
+
+        async function loadMachines() {
+            try {
+                const staffRes = await fetch('/api/staff');
+                const staffList = await staffRes.json();
+
+                const res = await fetch('/api/machines');
+                const machines = await res.json();
+                
+                const tbody = document.getElementById('machineTableBody');
+                if (!machines || machines.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-gray-500">No machines recorded yet.</td></tr>`;
+                    return;
+                }
+
+                tbody.innerHTML = machines.map(m => {
+                    const staffOptions = staffList.map(s => {
+                        const isSelected = String(m.assigned_staff_id) === String(s.id) ? 'selected' : '';
+                        return `<option value="${s.id}" ${isSelected}>${s.full_name} (${s.role})</option>`;
+                    }).join('');
+
+                    // Status color classes based on current state
+                    const statusBgClass = 
+                        m.status === 'Working' ? 'bg-green-100 text-green-800' : 
+                        m.status === 'Needs Service' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800';
+
+                    return `
+                        <tr class="border-b hover:bg-gray-50 text-sm">
+                            <td class="p-3 font-semibold text-gray-800">${m.machine_name}</td>
+                            <td class="p-3 text-gray-500">${m.serial_number || 'N/A'}</td>
+                            <td class="p-3">
+                                <select onchange="updateMachineStatus(${m.id}, this.value)" class="border rounded px-2 py-1 text-xs font-semibold ${statusBgClass} outline-none cursor-pointer">
+                                    <option value="Working" ${m.status === 'Working' ? 'selected' : ''}>Working</option>
+                                    <option value="Needs Service" ${m.status === 'Needs Service' ? 'selected' : ''}>Needs Service</option>
+                                    <option value="Out of Order" ${m.status === 'Out of Order' ? 'selected' : ''}>Out of Order</option>
+                                </select>
+                            </td>
+                            <td class="p-3">
+                                <select onchange="assignMachine(${m.id}, this.value)" class="border rounded px-2 py-1 text-xs bg-white focus:ring-2 focus:ring-wine outline-none">
+                                    <option value="">Unassigned</option>
+                                    ${staffOptions}
+                                </select>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+
+            } catch (err) {
+                console.error("Error loading machines:", err);
+            }
+        }
+
+        async function updateMachineStatus(machineId, newStatus) {
+            try {
+                const res = await fetch(`/api/machines/${machineId}/status`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: newStatus })
+                });
+
+                if (res.ok) {
+                    loadMachines();
+                } else {
+                    const data = await res.json();
+                    alert(data.error || "Failed to update machine status.");
+                }
+            } catch (err) {
+                console.error("Error updating machine status:", err);
+            }
+        }
+
+        async function assignMachine(machineId, staffId) {
+            try {
+                const payload = { 
+                    assigned_staff_id: staffId && staffId !== "" ? parseInt(staffId) : null 
+                };
+
+                const res = await fetch(`/api/machines/${machineId}/assign`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (res.ok) {
+                    loadMachines();
+                } else {
+                    const data = await res.json();
+                    alert(data.error || "Failed to assign machine.");
+                }
+            } catch (err) {
+                console.error("Error assigning machine:", err);
+            }
+        }
+
+        function openStaffModal() { document.getElementById('staffModal').classList.remove('hidden'); }
+        function closeStaffModal() { document.getElementById('staffModal').classList.add('hidden'); document.getElementById('staffForm').reset(); }
+
+        function openMachineModal() { document.getElementById('machineModal').classList.remove('hidden'); }
+        function closeMachineModal() { document.getElementById('machineModal').classList.add('hidden'); document.getElementById('machineForm').reset(); }
+
+        async function submitStaff(e) {
+            e.preventDefault();
+
+            // Explicitly grab element and log to console
+            const rateField = document.getElementById('staff_rate');
+            const rawValue = rateField ? rateField.value : null;
+            const parsedRate = parseFloat(rawValue);
+
+            console.log("Raw rate input value:", rawValue);
+            console.log("Parsed rate value:", parsedRate);
+
+            const payload = {
+                full_name: document.getElementById('staff_name').value,
+                phone: document.getElementById('staff_phone').value,
+                role: document.getElementById('staff_role').value,
+                pay_type: document.getElementById('staff_pay_type').value,
+                salary_rate: isNaN(parsedRate) ? 0 : parsedRate
+            };
+
+            console.log("Sending payload to backend:", payload);
+
+            try {
+                const res = await fetch('/api/staff', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (res.ok) {
+                    closeStaffModal();
+                    loadStaff();
+                } else {
+                    const data = await res.json();
+                    alert(data.error || "Failed to add staff member.");
+                }
+            } catch (err) {
+                console.error("Error saving staff:", err);
+                alert("Server communication error.");
+            }
+        }
+
+        async function submitMachine(e) {
+            e.preventDefault();
+            const payload = {
+                machine_name: document.getElementById('machine_name').value,
+                serial_number: document.getElementById('machine_serial').value,
+                status: document.getElementById('machine_status').value,
+                assigned_staff_id: document.getElementById('machine_assigned_staff').value || null
+            };
+
+            const res = await fetch('/api/machines', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (res.ok) {
+                closeMachineModal();
+                loadMachines();
+            } else {
+                const data = await res.json();
+                alert(data.error || "Failed to add machine.");
+            }
+        }
+
+        // Initialize default view on window load
+        window.onload = loadBookings;
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Priceless Stitch | Bespoke Tailoring & Design</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        wine: {
+                            DEFAULT: '#58111A',
+                            hover: '#400c13',
+                            light: '#721723'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans">
+
+    <!-- Header Navigation -->
+    <header class="bg-wine text-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 py-3 sm:py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <a href="#" class="text-xl sm:text-2xl font-black tracking-wider text-white">PRICELESS STITCH</a>
+            </div>
+            
+            <!-- Desktop Nav -->
+            <nav class="hidden md:flex items-center space-x-8 font-medium">
+                <a href="#services" class="hover:text-gray-200 transition">Services</a>
+                <a href="#catalogSection" class="hover:text-gray-200 transition">Catalog</a>
+                <a href="#booking" class="bg-white text-wine px-5 py-2.5 rounded-xl font-semibold hover:bg-gray-100 transition shadow-sm">Book Fitting</a>
+            </nav>
+
+            <!-- Mobile Menu Toggle Button -->
+            <button id="mobileMenuBtn" onclick="toggleMobileMenu()" class="md:hidden p-2 rounded-lg text-white hover:bg-wine-light focus:outline-none" aria-label="Toggle Navigation">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Mobile Nav Menu -->
+        <div id="mobileMenu" class="hidden md:hidden bg-wine-light border-t border-rose-950 px-4 pt-3 pb-4 space-y-3">
+            <a href="#services" onclick="toggleMobileMenu()" class="block text-white font-medium py-2 hover:text-gray-200">Services</a>
+            <a href="#catalogSection" onclick="toggleMobileMenu()" class="block text-white font-medium py-2 hover:text-gray-200">Catalog</a>
+            <a href="#booking" onclick="toggleMobileMenu()" class="block text-center bg-white text-wine px-4 py-3 rounded-xl font-bold shadow-sm hover:bg-gray-100">Book Fitting</a>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="bg-white border-b py-12 sm:py-20">
+        <div class="max-w-4xl mx-auto px-4 text-center">
+            <span class="text-wine font-semibold uppercase tracking-widest text-xs sm:text-sm">Precision Bespoke Tailoring</span>
+            <h1 class="text-3xl sm:text-5xl md:text-6xl font-extrabold text-gray-900 mt-2 mb-4 sm:mb-6 leading-tight">Master Craftsmanship for Every Fit</h1>
+            <p class="text-base sm:text-lg text-gray-600 mb-8 max-w-2xl mx-auto">From custom suits and traditional attire to perfect alterations, we transform fabrics into sharp, tailored confidence.</p>
+            <a href="#booking" class="inline-flex items-center justify-center w-full sm:w-auto h-12 px-8 bg-wine text-white rounded-xl font-bold shadow-md hover:bg-wine-hover transition">Schedule Consultation</a>
+        </div>
+    </section>
+
+    <!-- Services Grid -->
+    <section id="services" class="py-12 sm:py-16 max-w-6xl mx-auto px-4">
+        <h2 class="text-2xl sm:text-3xl font-bold text-center text-wine mb-8 sm:mb-12">Tailoring Services</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
+            <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-gray-100 border-t-4 border-t-wine">
+                <h3 class="text-lg sm:text-xl font-bold text-gray-900 mb-2">Custom Tailoring</h3>
+                <p class="text-sm sm:text-base text-gray-600">Precision custom cutting and sewing built around your exact body measurements and style specs.</p>
+            </div>
+            <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-gray-100 border-t-4 border-t-wine">
+                <h3 class="text-lg sm:text-xl font-bold text-gray-900 mb-2">Traditional & Event Wear</h3>
+                <p class="text-sm sm:text-base text-gray-600">High-end ceremonial, traditional outfits, and bridal garments crafted with meticulous detail.</p>
+            </div>
+            <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-gray-100 border-t-4 border-t-wine">
+                <h3 class="text-lg sm:text-xl font-bold text-gray-900 mb-2">Express Alterations</h3>
+                <p class="text-sm sm:text-base text-gray-600">Seamless resizing and structural adjustments to optimize the fit of your existing wardrobe.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Interactive Booking Form -->
+    <section id="booking" class="py-12 sm:py-16 bg-white border-t">
+        <div class="max-w-2xl mx-auto px-4">
+            <h2 class="text-2xl sm:text-3xl font-bold text-center text-wine mb-2">Book an Appointment</h2>
+            <p class="text-center text-sm sm:text-base text-gray-600 mb-8">Fill in your details below and our master tailor will reach out to confirm your slot.</p>
+            
+            <form id="bookingForm" class="space-y-5 bg-gray-50 p-5 sm:p-8 rounded-2xl border border-gray-200 shadow-sm">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Full Name *</label>
+                    <input type="text" id="fullName" required class="w-full h-12 px-4 border border-gray-300 rounded-xl text-base focus:ring-2 focus:ring-wine focus:outline-none bg-white">
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Phone Number (WhatsApp) *</label>
+                        <input type="tel" id="phone" required class="w-full h-12 px-4 border border-gray-300 rounded-xl text-base focus:ring-2 focus:ring-wine focus:outline-none bg-white">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Email Address</label>
+                        <input type="email" id="email" class="w-full h-12 px-4 border border-gray-300 rounded-xl text-base focus:ring-2 focus:ring-wine focus:outline-none bg-white">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Garment Type *</label>
+                    <select id="garmentType" class="w-full h-12 px-4 border border-gray-300 rounded-xl text-base focus:ring-2 focus:ring-wine focus:outline-none bg-white">
+                        <option value="Custom Outfit">Custom Outfit / Suit</option>
+                        <option value="Traditional Attire">Traditional Wear</option>
+                        <option value="Alterations">Garment Alteration</option>
+                        <option value="Bulk / Uniforms">Bulk / Uniform Order</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Special Requirements / Notes</label>
+                    <textarea id="notes" rows="3" class="w-full p-3 border border-gray-300 rounded-xl text-base focus:ring-2 focus:ring-wine focus:outline-none bg-white" placeholder="Provide fabric preferences, date needed, or style requests..."></textarea>
+                </div>
+                <button type="submit" class="w-full h-12 bg-wine text-white rounded-xl font-bold text-base sm:text-lg hover:bg-wine-hover transition-colors shadow-sm flex items-center justify-center">Submit Request</button>
+                <div id="responseMessage" class="hidden text-center font-semibold text-sm mt-4"></div>
+            </form>
+        </div>
+    </section>
+    
+    <!-- CLIENT STYLE CATALOG -->
+    <section id="catalogSection" class="py-12 bg-gray-50">
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="text-center mb-8 sm:mb-10">
+                <h2 class="text-2xl sm:text-3xl font-bold text-wine">Our Style Catalog</h2>
+                <p class="text-sm sm:text-base text-gray-600 mt-2">Explore our custom design collections and pick your favorite design.</p>
+            </div>
+
+            <!-- Dynamic Card Grid -->
+            <div id="styleCatalog" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                <!-- Dynamic styles will render here -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-wine text-white py-8 border-t border-wine-hover">
+        <div class="max-w-6xl mx-auto px-4 text-center">
+            <p class="font-bold text-lg tracking-wide">PRICELESS STITCH</p>
+            <p class="text-xs sm:text-sm text-gray-300 mt-1">&copy; 2026 Priceless Stitch. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Form & API Handling Script -->
+    <script>
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobileMenu');
+            if (menu) menu.classList.toggle('hidden');
+        }
+
+        document.addEventListener('DOMContentLoaded', loadCustomerStyles);
+
+        async function loadCustomerStyles() {
+            try {
+                const res = await fetch('/api/styles');
+                const styles = await res.json();
+                const container = document.getElementById('styleCatalog');
+
+                if (!container) return;
+
+                if (!styles || styles.length === 0) {
+                    container.innerHTML = `
+                        <div class="col-span-1 md:col-span-3 text-center py-8 text-gray-500">
+                            No styles uploaded to the catalog yet.
+                        </div>`;
+                    return;
+                }
+
+                container.innerHTML = styles.map(s => `
+                    <div class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow border border-gray-100 flex flex-col justify-between">
+                        <div>
+                            <div class="w-full h-72 sm:h-80 bg-gray-100 flex items-center justify-center p-2 border-b">
+                                <img src="${s.image_url}" alt="${s.title}" class="w-full h-full object-contain rounded-lg">
+                            </div>
+                            
+                            <div class="p-5">
+                                <span class="text-xs font-bold text-wine bg-wine/10 px-2.5 py-1 rounded-full uppercase">
+                                    ${s.category}
+                                </span>
+                                <h3 class="text-xl font-bold text-gray-800 mt-2">${s.title}</h3>
+                                <p class="text-gray-500 text-sm mt-1">${s.description || 'Custom tailored to your exact measurements.'}</p>
+                            </div>
+                        </div>
+                        <div class="p-5 pt-0">
+                            <div class="flex justify-between items-center pt-3 border-t">
+                                <span class="text-lg font-bold text-gray-900">₦${(s.price || 0).toLocaleString()}</span>
+                                <button onclick="selectStyleForOrder('${s.title.replace(/'/g, "\\'")}', ${s.price})" class="px-4 py-2 bg-wine text-white rounded-lg text-sm font-semibold hover:bg-wine-hover transition-colors">
+                                    Pick Style
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+
+            } catch (err) {
+                console.error("Error loading style catalog:", err);
+            }
+        }
+
+        function selectStyleForOrder(styleTitle, price) {
+            const garmentSelect = document.getElementById('garmentType');
+            if (garmentSelect) {
+                let existingOption = Array.from(garmentSelect.options).find(opt => opt.value === styleTitle);
+                
+                if (!existingOption) {
+                    const newOpt = document.createElement('option');
+                    newOpt.value = styleTitle;
+                    newOpt.textContent = `${styleTitle} (Catalog Selected)`;
+                    garmentSelect.appendChild(newOpt);
+                }
+                
+                garmentSelect.value = styleTitle;
+            }
+            
+            document.getElementById('bookingForm')?.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        document.getElementById('bookingForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const msg = document.getElementById('responseMessage');
+            
+            const payload = {
+                full_name: document.getElementById('fullName').value,
+                phone: document.getElementById('phone').value,
+                email: document.getElementById('email').value,
+                garment_type: document.getElementById('garmentType').value,
+                notes: document.getElementById('notes').value
+            };
+
+            try {
+                const res = await fetch('/api/book', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const result = await res.json();
+                
+                if (res.ok) {
+                    msg.className = "text-green-600 text-center font-semibold text-sm mt-4";
+                    msg.innerText = "Appointment submitted! We will contact you shortly.";
+                    document.getElementById('bookingForm').reset();
+                } else {
+                    msg.className = "text-red-600 text-center font-semibold text-sm mt-4";
+                    msg.innerText = result.error || "Submission failed.";
+                }
+            } catch (err) {
+                msg.className = "text-red-600 text-center font-semibold text-sm mt-4";
+                msg.innerText = "Error connecting to server.";
+            }
+            msg.classList.remove('hidden');
+        });
+    </script>
+</body>
+</html>
