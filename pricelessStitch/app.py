@@ -1,12 +1,19 @@
 import os
 import sqlite3
 import time
-from flask import Flask, jsonify, render_template, request, send_file
+from datetime import datetime
+from dateutil.relativedelta import relativedelta
+from flask import Flask, jsonify, render_template, request, send_file, redirect, url_for, session
 from pdf_generator import generate_admission_letter, generate_client_invoice
 from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 
+# Secret key required for session management
+app.secret_key = "priceless_stitch"
+
+# Define your Admin Password here
+ADMIN_PASSWORD = "pricelessstitch1992"
 
 UPLOAD_FOLDER = os.path.join('static', 'uploads')
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'webp'}
@@ -28,7 +35,7 @@ def init_db():
     conn = sqlite3.connect("database.db")
     cursor = conn.cursor()
 
-    #  1 Client Bookings Table
+    # 1 Client Bookings Table
     cursor.execute(
         """
         CREATE TABLE IF NOT EXISTS bookings (
@@ -47,7 +54,7 @@ def init_db():
     """
     )
 
-    #2 Student Registrations Table
+    # 2 Student Registrations Table
     cursor.execute(
         """
         CREATE TABLE IF NOT EXISTS students (
@@ -68,18 +75,18 @@ def init_db():
         )
     """
     )
-    # Ensure start_date and end_date columns exist if table was already created
+
     try:
         cursor.execute("ALTER TABLE students ADD COLUMN start_date TEXT")
     except Exception:
-        pass  # Column already exists
+        pass
 
     try:
         cursor.execute("ALTER TABLE students ADD COLUMN end_date TEXT")
     except Exception:
-        pass  # Column already exists
+        pass
     
-    #3 Measurements Table Linked to Client Booking (All 14 fields)
+    # 3 Measurements Table
     cursor.execute(
         """
         CREATE TABLE IF NOT EXISTS measurements (
@@ -111,8 +118,8 @@ def init_db():
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             full_name TEXT NOT NULL,
             phone TEXT UNIQUE NOT NULL,
-            role TEXT NOT NULL, -- Tailor, Instructor, Cutter, Finisher
-            pay_type TEXT NOT NULL, -- Fixed Salary, Piece Rate
+            role TEXT NOT NULL,
+            pay_type TEXT NOT NULL,
             salary_rate REAL DEFAULT 0.0,
             status TEXT DEFAULT 'Active'
         )
@@ -122,21 +129,21 @@ def init_db():
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS machines (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            machine_name TEXT NOT NULL, -- e.g. Industrial Straight Stitch #1
+            machine_name TEXT NOT NULL,
             serial_number TEXT UNIQUE,
-            status TEXT DEFAULT 'Working', -- Working, Needs Service, Out of Service
+            status TEXT DEFAULT 'Working',
             assigned_staff_id INTEGER,
             FOREIGN KEY (assigned_staff_id) REFERENCES staff (id)
         )
     ''')
 
-    # 6. Work Done Log (Piece-Rate / Daily Tasks)
+    # 6. Work Done Log
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS work_logs (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             staff_id INTEGER NOT NULL,
-            order_id TEXT, -- Tied to client order if applicable
-            task_description TEXT NOT NULL, -- e.g., Trouser Stitching, Cutting 5 Suits
+            order_id TEXT,
+            task_description TEXT NOT NULL,
             pieces_completed INTEGER DEFAULT 1,
             rate_per_piece REAL DEFAULT 0.0,
             date_logged DATE DEFAULT CURRENT_DATE,
@@ -158,7 +165,7 @@ def init_db():
         )
     ''')
 
-    #8. Styles table
+    # 8. Styles Table
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS styles (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -169,7 +176,7 @@ def init_db():
             description TEXT
         )
     ''')
-       
+        
     conn.commit()
     conn.close()
 
@@ -184,8 +191,29 @@ def academy():
     return render_template("academy.html")
 
 
+# --- AUTHENTICATION ROUTES ---
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        password = request.form.get("password")
+        if password == ADMIN_PASSWORD:
+            session["admin_logged_in"] = True
+            return redirect(url_for("admin_portal"))
+        else:
+            return render_template("login.html", error="Invalid admin password. Please try again.")
+    return render_template("login.html")
+
+
+@app.route("/logout")
+def logout():
+    session.pop("admin_logged_in", None)
+    return redirect(url_for("login"))
+
+
 @app.route("/admin")
 def admin_portal():
+    if not session.get("admin_logged_in"):
+        return redirect(url_for("login"))
     return render_template("admin.html")
 
 
@@ -294,15 +322,12 @@ def save_measurements():
     conn = get_db_connection()
     cursor = conn.cursor()
     
-    # 1. Update Booking Financial Data & Status
     cursor.execute('''
         UPDATE bookings 
-        SET total_price = ?, down_payment = ?,delivery_date = ?, status = 'In Progress' 
+        SET total_price = ?, down_payment = ?, delivery_date = ?, status = 'In Progress' 
         WHERE id = ?
-    ''', (total_price, down_payment,delivery_date, booking_id))
+    ''', (total_price, down_payment, delivery_date, booking_id))
 
- 
-    # 2. Upsert Measurements
     query = """
     INSERT INTO measurements (
         booking_id, length_shift, shoulder, neck, chest, sleeves, tommy,
@@ -347,7 +372,6 @@ def save_measurements():
 
     cursor.execute(query, values)
 
-    # 2. Automatically update booking status to 'In Progress'
     cursor.execute(
         "UPDATE bookings SET status = 'In Progress' WHERE id = ?", (booking_id,)
     )
@@ -364,6 +388,7 @@ def save_measurements():
         ),
         200,
     )
+
     
 @app.route("/api/bookings/update_status", methods=["POST"])
 def update_booking_status():
@@ -388,6 +413,7 @@ def update_booking_status():
         ),
         200,
     )
+
     
 # API to GET all styles & POST new style
 @app.route('/api/styles', methods=['GET', 'POST'])
@@ -441,7 +467,6 @@ def handle_styles():
             print("\n[STYLE UPLOAD ERROR]:", str(e), "\n")
             return jsonify({'error': str(e)}), 500
 
-    # GET Request
     try:
         cursor.execute('SELECT * FROM styles ORDER BY id DESC')
         styles = [dict(row) for row in cursor.fetchall()]
@@ -450,6 +475,7 @@ def handle_styles():
     except Exception as e:
         conn.close()
         return jsonify({'error': str(e)}), 500
+
         
 # DELETE A STYLE
 @app.route('/api/styles/<int:style_id>', methods=['DELETE'])
@@ -458,7 +484,6 @@ def delete_style(style_id):
     cursor = conn.cursor()
 
     try:
-        # Optional: Retrieve file path first if you want to delete the file from disk
         cursor.execute('SELECT image_url FROM styles WHERE id = ?', (style_id,))
         style = cursor.fetchone()
         
@@ -475,9 +500,6 @@ def delete_style(style_id):
         conn.close()
         return jsonify({'error': str(e)}), 500        
     
-from datetime import datetime
-from dateutil.relativedelta import relativedelta
-
 
 # --- STUDENT REGISTRATION API ---
 @app.route("/api/students/register", methods=["POST"])
@@ -488,11 +510,10 @@ def register_student():
     email = data.get("email")
     program = data.get("program")
     duration = data.get("duration")
-    start_date_str = data.get("start_date")  # Extracted from frontend payload
+    start_date_str = data.get("start_date")
     tuition_fee = float(data.get("tuition_fee", 0.0))
     amount_paid = float(data.get("amount_paid", 0.0))
 
-    # Validate required fields including start_date
     if not full_name or not phone or not program or not start_date_str:
         return (
             jsonify(
@@ -503,7 +524,6 @@ def register_student():
             400,
         )
 
-    # 1. Parse Start Date & Compute End Date
     start_dt = datetime.strptime(start_date_str, "%Y-%m-%d")
 
     if "3 Months" in duration:
@@ -517,7 +537,6 @@ def register_student():
 
     end_date_str = end_dt.strftime("%Y-%m-%d")
 
-    # 2. Database Insert Operations
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute("SELECT MAX(id) FROM students")
@@ -582,7 +601,6 @@ def get_students():
     return jsonify(students)
 
 
-# Ensure pdfs output folder exists
 PDF_DIR = os.path.join(app.root_path, "generated_pdfs")
 os.makedirs(PDF_DIR, exist_ok=True)
 
@@ -592,7 +610,6 @@ def download_invoice(booking_id):
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    # 👇 ADD total_price AND down_payment TO SELECT QUERY 👇
     cursor.execute(
         """
         SELECT id, full_name, phone, garment_type, status, created_at, delivery_date, total_price, down_payment 
@@ -676,7 +693,6 @@ def record_student_payment():
         conn.close()
         return jsonify({"error": "Student not found."}), 404
 
-    # Resolve tuition fee from payload, falling back to existing database value
     raw_tuition = data.get("tuition_fee")
     try:
         tuition_fee = (
@@ -690,7 +706,6 @@ def record_student_payment():
     current_paid = student["amount_paid"]
     new_paid = current_paid + payment_amount
 
-    # Recalculate status dynamically
     if new_paid >= tuition_fee and tuition_fee > 0:
         new_status = "Completed"
     elif new_paid > 0:
@@ -698,7 +713,6 @@ def record_student_payment():
     else:
         new_status = "Pending"
 
-    # Save updated record
     cursor.execute(
         """
         UPDATE students 
@@ -748,13 +762,13 @@ def log_staff_work():
 
     return jsonify({'message': 'Work logged successfully.'}), 200
 
+
 # --- Get Unpaid Earnings for a Staff Member ---
 @app.route('/api/staff/<int:staff_id>/earnings', methods=['GET'])
 def get_staff_earnings(staff_id):
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    # Calculate total earned from piecework logs
     cursor.execute('''
         SELECT SUM(pieces_completed * rate_per_piece) as piecework_total
         FROM work_logs 
@@ -762,7 +776,6 @@ def get_staff_earnings(staff_id):
     ''', (staff_id,))
     work_total = cursor.fetchone()['piecework_total'] or 0.0
 
-    # Calculate total payments already made
     cursor.execute('''
         SELECT SUM(amount_paid) as total_paid
         FROM payroll 
@@ -778,6 +791,7 @@ def get_staff_earnings(staff_id):
         'total_paid': paid_total,
         'balance_due': balance_due
     }), 200
+
     
 # --- STAFF MANAGEMENT ENDPOINTS ---
 @app.route('/api/staff', methods=['GET', 'POST'])
@@ -794,7 +808,6 @@ def handle_staff():
             role = data.get('role', 'Tailor')
             pay_type = data.get('pay_type', 'Piece Rate')
             
-            # Catch all casing possibilities (salary_rate, Salary_rate, rate)
             salary_rate = float(
                 data.get('salary_rate') or
                 data.get('Salary_rate') or
@@ -820,7 +833,6 @@ def handle_staff():
             print("\n[FLASK ERROR - POST /api/staff]:", str(e), "\n")
             return jsonify({'error': str(e)}), 500
 
-    # GET REQUEST
     try:
         cursor.execute('SELECT id, full_name, phone, role, pay_type, salary_rate, status FROM staff ORDER BY id DESC')
         rows = cursor.fetchall()
@@ -832,8 +844,9 @@ def handle_staff():
         conn.close()
         print("\n[FLASK ERROR - GET /api/staff]:", str(e), "\n")
         return jsonify({'error': str(e)}), 500
+
         
-# UPDATE STAFF DETAILS (or status directly)
+# UPDATE STAFF DETAILS
 @app.route('/api/staff/<int:staff_id>', methods=['PUT'])
 def update_staff(staff_id):
     conn = get_db_connection()
@@ -861,7 +874,8 @@ def update_staff(staff_id):
         conn.close()
         return jsonify({'error': str(e)}), 500
 
-# TOGGLE STAFF STATUS (Active / Suspended)
+
+# TOGGLE STAFF STATUS
 @app.route('/api/staff/<int:staff_id>/status', methods=['PUT'])
 def toggle_staff_status(staff_id):
     conn = get_db_connection()
@@ -878,6 +892,7 @@ def toggle_staff_status(staff_id):
         conn.close()
         return jsonify({'error': str(e)}), 500
 
+
 # DELETE STAFF
 @app.route('/api/staff/<int:staff_id>', methods=['DELETE'])
 def delete_staff(staff_id):
@@ -886,7 +901,6 @@ def delete_staff(staff_id):
 
     try:
         cursor.execute('DELETE FROM staff WHERE id = ?', (staff_id,))
-        # Also clear machine assignments for deleted staff
         cursor.execute('UPDATE machines SET assigned_staff_id = NULL WHERE assigned_staff_id = ?', (staff_id,))
         conn.commit()
         conn.close()
@@ -894,6 +908,7 @@ def delete_staff(staff_id):
     except Exception as e:
         conn.close()
         return jsonify({'error': str(e)}), 500
+
 
 # --- MACHINE INVENTORY ENDPOINTS ---
 @app.route('/api/machines', methods=['GET', 'POST'])
@@ -925,7 +940,6 @@ def handle_machines():
             conn.close()
             return jsonify({'error': str(e)}), 500
 
-    # GET Request: Fetch assigned_staff_id explicitly
     try:
         cursor.execute('''
             SELECT 
@@ -946,6 +960,7 @@ def handle_machines():
     except Exception as e:
         conn.close()
         return jsonify({'error': str(e)}), 500
+
 
 @app.route('/api/machines/<int:machine_id>/assign', methods=['PUT'])
 def assign_machine(machine_id):
@@ -971,6 +986,7 @@ def assign_machine(machine_id):
         conn.close()
         return jsonify({'error': str(e)}), 500 
 
+
 @app.route('/api/machines/<int:machine_id>/status', methods=['PUT'])
 def update_machine_status(machine_id):
     conn = get_db_connection()
@@ -993,6 +1009,7 @@ def update_machine_status(machine_id):
         conn.close()
         return jsonify({'error': str(e)}), 500        
 
+
 if __name__ == "__main__":
     init_db()
-    app.run(host= '0.0.0.0', debug=True, port=5000)
+    app.run(host='0.0.0.0', debug=True, port=5000)
