@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login | Priceless Stitch</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        wine: { DEFAULT: '#58111A', hover: '#400c13' }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+    <div class="max-w-md w-full bg-white rounded-2xl shadow-lg p-8 border border-gray-200">
+        <h2 class="text-2xl font-bold text-center text-wine mb-2">Admin Login</h2>
+        <p class="text-sm text-gray-500 text-center mb-6">Enter your administrative password to access the portal.</p>
+
+        {% if error %}
+        <div class="bg-red-50 text-red-600 text-sm p-3 rounded-xl border border-red-200 text-center mb-4">
+            {{ error }}
+        </div>
+        {% endif %}
+
+        <form action="/login" method="POST" class="space-y-4">
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1">Password</label>
+                <input type="password" name="password" required class="w-full h-12 px-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-wine focus:outline-none">
+            </div>
+            <button type="submit" class="w-full h-12 bg-wine text-white rounded-xl font-bold hover:bg-wine-hover transition">Login</button>
+        </form>
+    </div>
+</body>
+</html>
