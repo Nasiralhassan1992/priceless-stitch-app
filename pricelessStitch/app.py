@@ -6,6 +6,8 @@ from dateutil.relativedelta import relativedelta
 from flask import Flask, jsonify, render_template, request, send_file, redirect, url_for, session
 from pdf_generator import generate_admission_letter, generate_client_invoice
 from werkzeug.utils import secure_filename
+import psycopg2
+from psycopg2.extras import RealDictCursor
 
 app = Flask(__name__)
 
@@ -25,11 +27,18 @@ def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
-def get_db_connection():
-    conn = sqlite3.connect("database.db")
-    conn.row_factory = sqlite3.Row
-    return conn
+DATABASE_URL = os.environ.get("DATABASE_URL")
 
+def get_db_connection():
+    if DATABASE_URL:
+        # Use Supabase PostgreSQL on Render
+        conn = psycopg2.connect(DATABASE_URL, cursor_factory=RealDictCursor)
+        return conn
+    else:
+        # Fallback to local SQLite on your PC
+        conn = sqlite3.connect("database.db")
+        conn.row_factory = sqlite3.Row
+        return conn
 
 def init_db():
     conn = sqlite3.connect("database.db")
