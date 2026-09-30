@@ -552,7 +552,19 @@ def get_students():
     rows = cursor.fetchall()
     conn.close()
 
-    students = [dict(row) for row in rows]
+    students = []
+    for row in rows:
+        student_dict = dict(row)
+        reg_at = student_dict.get("registered_at")
+        
+        # Convert datetime object to ISO string so jsonify can process it
+        if reg_at and hasattr(reg_at, "strftime"):
+            student_dict["registered_at"] = reg_at.strftime("%Y-%m-%d %H:%M:%S")
+        else:
+            student_dict["registered_at"] = str(reg_at) if reg_at else ""
+            
+        students.append(student_dict)
+
     return jsonify(students)
 
 
