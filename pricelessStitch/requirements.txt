@@ -1,5 +1,6 @@
 Flask
 gunicorn
+psycopg2-binary
+Pillow
 reportlab
 python-dateutil
-psycopg2-binary
