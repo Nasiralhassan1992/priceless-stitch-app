@@ -929,6 +929,9 @@
 
                     const waMessage = `Hello ${item.full_name}, reaching out from Priceless Stitch Fashion Academy regarding your enrolment status (${item.reg_number}).`;
                     const waUrl = getWhatsAppUrl(item.phone, waMessage);
+					// Inside loadStudents() function, inside data.forEach(item => { ... })
+
+                    const encodedRegNumber = encodeURIComponent(item.reg_number);
 
                     tbody.innerHTML += `
                         <tr class="hover:bg-slate-50/80 transition-colors">
@@ -950,9 +953,9 @@
                                             class="bg-emerald-600 text-white text-xs px-2.5 py-1.5 rounded-lg font-semibold hover:bg-emerald-700 shadow-sm transition">
                                         + Payment
                                     </button>
-                                    <a href="/api/pdf/admission/${item.reg_number}" target="_blank" 
+                                    <a href="/api/pdf/admission/${encodedRegNumber}" target="_blank" 
                                        class="bg-wine-600 text-white text-xs px-2.5 py-1.5 rounded-lg font-semibold hover:bg-wine-700 transition">
-                                        Admission
+                                       Admission
                                     </a>
                                     <a href="${waUrl}" target="_blank" 
                                        class="bg-emerald-600 text-white text-xs px-2.5 py-1.5 rounded-lg font-semibold hover:bg-emerald-700 transition flex items-center gap-1 shadow-sm">
