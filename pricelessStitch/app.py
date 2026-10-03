@@ -572,6 +572,7 @@ PDF_DIR = os.path.join(app.root_path, "generated_pdfs")
 os.makedirs(PDF_DIR, exist_ok=True)
 
 
+# Updated Invoice Route
 @app.route("/api/pdf/invoice/", methods=["GET"])
 def download_invoice(booking_id):
     conn = get_db_connection()
@@ -603,6 +604,7 @@ def download_invoice(booking_id):
     return send_file(filepath, as_attachment=True)
 
 
+# Updated Admission Route
 @app.route("/api/pdf/admission/", methods=["GET"])
 def download_admission(reg_number):
     conn = get_db_connection()
@@ -627,7 +629,6 @@ def download_admission(reg_number):
 
     generate_admission_letter(filepath, student_data)
     return send_file(filepath, as_attachment=True)
-
 
 @app.route("/api/students/record_payment", methods=["POST"])
 def record_student_payment():
