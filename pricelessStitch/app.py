@@ -8,6 +8,8 @@ from pdf_generator import generate_admission_letter, generate_client_invoice
 from werkzeug.utils import secure_filename
 import psycopg2
 from psycopg2.extras import RealDictCursor
+from urllib.parse import unquote
+
 
 app = Flask(__name__)
 
@@ -479,15 +481,17 @@ def delete_style(style_id):
         return jsonify({'error': str(e)}), 500        
 
 
+
+
 # --- STUDENT REGISTRATION API ---
 @app.route("/api/students/register", methods=["POST"])
 def register_student():
-    data = request.json
+    data = request.json or {}
     full_name = data.get("full_name")
     phone = data.get("phone")
     email = data.get("email")
     program = data.get("program")
-    duration = data.get("duration")
+    duration = data.get("duration", "3 Months")
     start_date_str = data.get("start_date")
     tuition_fee = float(data.get("tuition_fee", 0.0))
     amount_paid = float(data.get("amount_paid", 0.0))
@@ -495,7 +499,10 @@ def register_student():
     if not full_name or not phone or not program or not start_date_str:
         return jsonify({"error": "Full name, phone, program, and start date are required."}), 400
 
-    start_dt = datetime.strptime(start_date_str, "%Y-%m-%d")
+    try:
+        start_dt = datetime.strptime(start_date_str, "%Y-%m-%d")
+    except ValueError:
+        return jsonify({"error": "Invalid start date format. Use YYYY-MM-DD."}), 400
 
     if "3 Months" in duration:
         end_dt = start_dt + relativedelta(months=3)
@@ -514,7 +521,15 @@ def register_student():
 
     cursor.execute("SELECT MAX(id) FROM students")
     row = cursor.fetchone()
-    max_id = (row[0] if isinstance(row, tuple) else row.get('max')) or 0
+    
+    # Handle dict row or tuple row safely
+    if isinstance(row, dict):
+        max_id = row.get('max') or 0
+    elif isinstance(row, tuple) and row[0] is not None:
+        max_id = row[0]
+    else:
+        max_id = 0
+
     reg_number = f"PSA-2026-{(max_id + 1):03d}"
 
     if amount_paid >= tuition_fee and tuition_fee > 0:
@@ -557,7 +572,6 @@ def get_students():
         student_dict = dict(row)
         reg_at = student_dict.get("registered_at")
         
-        # Convert datetime object to ISO string so jsonify can process it
         if reg_at and hasattr(reg_at, "strftime"):
             student_dict["registered_at"] = reg_at.strftime("%Y-%m-%d %H:%M:%S")
         else:
@@ -607,6 +621,8 @@ def download_invoice(booking_id):
 # Corrected Admission Route
 @app.route("/api/pdf/admission/<string:reg_number>", methods=["GET"])
 def download_admission(reg_number):
+    clean_reg_number = unquote(reg_number)
+
     conn = get_db_connection()
     cursor = conn.cursor()
     ph = "%s" if DATABASE_URL else "?"
@@ -615,7 +631,8 @@ def download_admission(reg_number):
         SELECT reg_number, full_name, phone, program, duration, 
                start_date, end_date, tuition_fee, amount_paid, payment_status, registered_at 
         FROM students WHERE reg_number = {ph}
-    """, (reg_number,))
+    """, (clean_reg_number,))
+
     s = cursor.fetchone()
     conn.close()
 
@@ -624,14 +641,22 @@ def download_admission(reg_number):
 
     student_data = dict(s)
 
-    pdf_filename = f"Admission_{reg_number}.pdf"
+    safe_filename = clean_reg_number.replace("/", "_").replace("\\", "_")
+    pdf_filename = f"Admission_{safe_filename}.pdf"
     filepath = os.path.join(PDF_DIR, pdf_filename)
 
     generate_admission_letter(filepath, student_data)
-    return send_file(filepath, as_attachment=True)
+
+    return send_file(
+        filepath,
+        as_attachment=True,
+        download_name=pdf_filename
+    )
+
+# FIXED: Safe dictionary conversion on student record lookup
 @app.route("/api/students/record_payment", methods=["POST"])
 def record_student_payment():
-    data = request.get_json()
+    data = request.get_json() or {}
     reg_number = data.get("reg_number")
 
     if not reg_number:
@@ -644,15 +669,16 @@ def record_student_payment():
     ph = "%s" if DATABASE_URL else "?"
 
     cursor.execute(f"SELECT tuition_fee, amount_paid FROM students WHERE reg_number = {ph}", (reg_number,))
-    student = cursor.fetchone()
+    student_row = cursor.fetchone()
 
-    if not student:
+    if not student_row:
         conn.close()
         return jsonify({"error": "Student not found."}), 404
 
+    student = dict(student_row)
     raw_tuition = data.get("tuition_fee")
-    tuition_fee = float(raw_tuition) if raw_tuition else student["tuition_fee"]
-    current_paid = student["amount_paid"]
+    tuition_fee = float(raw_tuition) if raw_tuition else float(student.get("tuition_fee", 0))
+    current_paid = float(student.get("amount_paid", 0))
     new_paid = current_paid + payment_amount
 
     if new_paid >= tuition_fee and tuition_fee > 0:
@@ -677,7 +703,6 @@ def record_student_payment():
         "new_amount_paid": new_paid,
         "payment_status": new_status
     }), 200
-
 
 # --- WORK LOGS & PAYROLL API ---
 @app.route('/api/work/log', methods=['POST'])
