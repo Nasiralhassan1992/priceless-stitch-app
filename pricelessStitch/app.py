@@ -555,7 +555,6 @@ def register_student():
 
     return jsonify({"message": "Registration successful!", "reg_number": reg_number}), 201
 
-
 @app.route("/api/students", methods=["GET"])
 def get_students():
     conn = get_db_connection()
