@@ -1862,7 +1862,12 @@ def update_machine_status(machine_id):
         return jsonify({'message': 'Machine status updated successfully.'}), 200
     except Exception as e:
         conn.close()
-        return jsonify({'error': str(e)}), 500        
+        return jsonify({'error': str(e)}), 500 
+
+# TEMPORARY ROUTE DIAGNOSTIC
+print("========== REGISTERED FLASK ROUTES ==========")
+print(app.url_map)
+print("============================================")
 
 
 if __name__ == "__main__":
