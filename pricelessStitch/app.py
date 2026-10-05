@@ -519,12 +519,12 @@ def register_student():
     cursor = conn.cursor()
     ph = "%s" if DATABASE_URL else "?"
 
-    cursor.execute("SELECT MAX(id) FROM students")
+    # FIXED: Added SQL alias 'max_id' for safe dictionary access
+    cursor.execute("SELECT MAX(id) AS max_id FROM students")
     row = cursor.fetchone()
     
-    # Handle dict row or tuple row safely
     if isinstance(row, dict):
-        max_id = row.get('max') or 0
+        max_id = row.get('max_id') or 0
     elif isinstance(row, tuple) and row[0] is not None:
         max_id = row[0]
     else:
@@ -555,6 +555,7 @@ def register_student():
 
     return jsonify({"message": "Registration successful!", "reg_number": reg_number}), 201
 
+
 @app.route("/api/students", methods=["GET"])
 def get_students():
     conn = get_db_connection()
@@ -583,7 +584,6 @@ def get_students():
 
 PDF_DIR = os.path.join(app.root_path, "generated_pdfs")
 os.makedirs(PDF_DIR, exist_ok=True)
-
 
 # Corrected Invoice Route
 @app.route("/api/pdf/invoice/<int:booking_id>", methods=["GET"])
