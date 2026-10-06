@@ -13,6 +13,11 @@ from urllib.parse import unquote
 
 app = Flask(__name__)
 
+print("========== APP.PY LOADED ==========")
+print("APP FILE:", os.path.abspath(__file__))
+print("APP NAME:", app.name)
+print("===================================")
+
 # Secret key required for session management
 app.secret_key = "priceless_stitch"
 
