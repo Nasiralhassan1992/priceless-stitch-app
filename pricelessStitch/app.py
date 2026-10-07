@@ -55,7 +55,19 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
+# ============================================================
+# GENERATED PDF DIRECTORY
+# ============================================================
 
+PDF_DIR = os.path.join(
+    app.root_path,
+    "generated_pdfs"
+)
+
+os.makedirs(
+    PDF_DIR,
+    exist_ok=True
+)
 def allowed_file(filename):
     return (
         "." in filename
