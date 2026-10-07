@@ -1278,9 +1278,9 @@ def download_admission(reg_number):
         )
 
         generate_admission_letter(
-            student,
-            pdf_path
-        )
+            pdf_path,
+            student
+		)
 
         if not os.path.exists(pdf_path):
             return jsonify({
@@ -1370,10 +1370,10 @@ def download_invoice(booking_id):
         )
 
         generate_client_invoice(
+            pdf_path,
             booking,
-            measurement,
-            pdf_path
-        )
+            measurement
+		)
 
         if not os.path.exists(pdf_path):
             return jsonify({
