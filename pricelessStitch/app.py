@@ -42,7 +42,11 @@ ADMIN_PASSWORD = "pricelessstitch1992"
 # UPLOAD CONFIGURATION
 # ============================================================
 
-UPLOAD_FOLDER = os.path.join("static", "uploads")
+UPLOAD_FOLDER = os.path.join(
+    app.root_path,
+    "static",
+    "uploads"
+)
 
 ALLOWED_EXTENSIONS = {
     "png",
@@ -782,36 +786,99 @@ def get_styles():
 
 @app.route("/api/styles", methods=["POST"])
 def create_style():
-    data = request.get_json(silent=True) or {}
-
-    name = data.get("name")
-    description = data.get("description", "")
-    image = data.get("image", "")
-
-    if not name:
-        return jsonify({
-            "message": "Style name is required"
-        }), 400
-
     conn = get_db_connection()
     cursor = conn.cursor()
 
     try:
+        title = request.form.get("title", "").strip()
+        category = request.form.get("category", "").strip()
+        description = request.form.get("description", "").strip()
+
+        try:
+            price = float(request.form.get("price", 0))
+        except (ValueError, TypeError):
+            return jsonify({
+                "error": "Invalid price."
+            }), 400
+
+        if not title:
+            return jsonify({
+                "error": "Title is required."
+            }), 400
+
+        if not category:
+            return jsonify({
+                "error": "Category is required."
+            }), 400
+
+        if "image" not in request.files:
+            return jsonify({
+                "error": "No image file uploaded."
+            }), 400
+
+        file = request.files["image"]
+
+        if file.filename == "":
+            return jsonify({
+                "error": "No file selected."
+            }), 400
+
+        if not allowed_file(file.filename):
+            return jsonify({
+                "error": "File format not allowed."
+            }), 400
+
+        filename = secure_filename(file.filename)
+
+        unique_filename = (
+            f"{int(time.time())}_{filename}"
+        )
+
+        filepath = os.path.join(
+            app.config["UPLOAD_FOLDER"],
+            unique_filename
+        )
+
+        file.save(filepath)
+
+        image_url = (
+            f"/static/uploads/{unique_filename}"
+        )
+
         ph = "%s" if DATABASE_URL else "?"
 
         cursor.execute(
             f"""
             INSERT INTO styles
-            (name, description, image)
-            VALUES ({ph}, {ph}, {ph})
+            (
+                title,
+                category,
+                price,
+                image_url,
+                description
+            )
+            VALUES (
+                {ph},
+                {ph},
+                {ph},
+                {ph},
+                {ph}
+            )
             """,
-            (name, description, image)
+            (
+                title,
+                category,
+                price,
+                image_url,
+                description
+            )
         )
 
         conn.commit()
 
         return jsonify({
-            "message": "Style created successfully"
+            "message": "Style added successfully!",
+            "image_url": image_url
         }), 201
 
     except Exception as e:
@@ -820,7 +887,6 @@ def create_style():
         print("CREATE STYLE ERROR:", e)
 
         return jsonify({
-            "message": "Failed to create style",
             "error": str(e)
         }), 500
 
@@ -839,23 +905,47 @@ def delete_style(style_id):
 
         cursor.execute(
             f"""
+            SELECT image_url
+            FROM styles
+            WHERE id = {ph}
+            """,
+            (style_id,)
+        )
+
+        style = cursor.fetchone()
+
+        if not style:
+            return jsonify({
+                "message": "Style not found"
+            }), 404
+
+        image_url = style["image_url"]
+
+        if image_url and image_url.startswith(
+            "/static/uploads/"
+        ):
+            relative_path = image_url.lstrip("/")
+
+            file_path = os.path.join(
+                app.root_path,
+                relative_path
+            )
+
+            if os.path.exists(file_path):
+                os.remove(file_path)
+
+        cursor.execute(
+            f"""
             DELETE FROM styles
             WHERE id = {ph}
             """,
             (style_id,)
         )
 
-        if cursor.rowcount == 0:
-            conn.rollback()
-
-            return jsonify({
-                "message": "Style not found"
-            }), 404
-
         conn.commit()
 
         return jsonify({
-            "message": "Style deleted successfully"
+            "message": "Style deleted successfully."
         }), 200
 
     except Exception as e:
@@ -864,15 +954,12 @@ def delete_style(style_id):
         print("DELETE STYLE ERROR:", e)
 
         return jsonify({
-            "message": "Failed to delete style",
             "error": str(e)
         }), 500
 
     finally:
         cursor.close()
         conn.close()
-
-
 # ============================================================
 # STUDENT REGISTRATION API
 # ============================================================
